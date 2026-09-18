@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f7eedb">
+<title>A Letter, and a Question</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;0,600;0,700&family=Work+Sans:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f7eedb;
+  --paper-deep:#ecdcb8;
+  --ink:#2a2015;
+  --ink-soft:#5c4f3d;
+  --wine:#7c2635;
+  --wine-deep:#571b26;
+  --gold:#b3863f;
+  --line:#d9c79f;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;color:var(--ink);
+  font-family:"Work Sans",sans-serif;
+  background:
+    radial-gradient(circle at 15% 8%, rgba(124,38,53,.04), transparent 38%),
+    radial-gradient(circle at 88% 85%, rgba(179,134,63,.06), transparent 42%),
+    var(--paper);
+  position:relative;
+}
+
+/* ---------- ambient drifting specks (single continuous atmosphere) ---------- */
+.ambient{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.speck{position:absolute;bottom:-30px;font-family:"Cormorant Garamond",serif;opacity:0;animation:drift linear infinite}
+.speck.gold{color:var(--gold)}
+.speck.wine{color:var(--wine)}
+@keyframes drift{
+  0%{opacity:0;transform:translate(0,0) rotate(0deg)}
+  10%{opacity:.55}
+  85%{opacity:.4}
+  100%{opacity:0;transform:translate(var(--dx,20px),-115vh) rotate(200deg)}
+}
+
+.act{display:none;min-height:100vh;align-items:center;justify-content:center;padding:56px 18px;position:relative;z-index:2}
+.act.active{display:flex}
+.sheet{width:min(600px,100%);position:relative}
+
+/* progress dots */
+.dots{position:fixed;top:22px;left:50%;transform:translateX(-50%);display:flex;gap:9px;z-index:50}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--line);transition:.35s ease}
+.dot.on{background:var(--wine);transform:scale(1.5)}
+
+h1,h2,h3{font-family:"Cormorant Garamond",serif;font-weight:600;margin:0 0 14px;color:var(--ink);line-height:1.12}
+h1{font-size:clamp(36px,7vw,54px);font-style:italic}
+h2{font-size:clamp(28px,5vw,38px)}
+p{margin:0 0 16px;color:var(--ink-soft);line-height:1.75;font-size:16px}
+.rule{width:54px;height:2px;background:var(--gold);border:0;margin:0 0 22px}
+.rule.center{margin:0 auto 22px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;animation:fadeUp .8s cubic-bezier(.19,1,.22,1) forwards;animation-delay:calc(var(--i,0) * .13s)}
+
+/* ---------- ACT 1 : envelope ---------- */
+#act1 .sheet{text-align:center}
+.subtitle{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:18px;color:var(--ink-soft);margin-bottom:44px}
+.env-scene{perspective:1300px;width:300px;margin:0 auto 40px}
+.envelope{position:relative;width:300px;height:190px;margin:0 auto}
+.env-body{position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(180deg,var(--paper-deep),#e2cf9f);border-radius:3px;box-shadow:0 22px 45px rgba(60,35,20,.18);overflow:hidden}
+.env-body:before{content:"";position:absolute;left:0;top:0;width:0;height:0;border-style:solid;border-width:150px 150px 0 0;border-color:rgba(60,35,20,.07) transparent transparent transparent}
+.env-body:after{content:"";position:absolute;right:0;top:0;width:0;height:0;border-style:solid;border-width:150px 0 0 150px;border-color:transparent transparent transparent rgba(60,35,20,.07)}
+.flap{position:absolute;top:0;left:0;width:300px;height:100px;background:linear-gradient(160deg,var(--wine),var(--wine-deep));clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transition:transform 1s cubic-bezier(.6,-0.2,.3,1.3);z-index:3;box-shadow:0 8px 18px rgba(60,20,25,.2)}
+.seal{position:absolute;top:82px;left:50%;transform:translateX(-50%);width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9d3a4a,var(--wine-deep));display:grid;place-items:center;color:#f1e3c8;font-family:"Cormorant Garamond",serif;font-size:22px;cursor:pointer;z-index:5;box-shadow:0 6px 16px rgba(60,20,25,.35);animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:translateX(-50%) scale(1.08)}}
+.letter-peek{position:absolute;left:18px;right:18px;bottom:8px;height:118px;background:var(--paper);border:1px solid var(--line);border-radius:2px;z-index:1;transition:transform 1s cubic-bezier(.16,1,.3,1) .15s, box-shadow .6s ease .15s}
+.envelope.open .flap{transform:rotateX(180deg) translateY(2px)}
+.envelope.open .letter-peek{transform:translateY(-172px) rotate(-1deg);box-shadow:0 30px 50px rgba(60,35,20,.2);z-index:6}
+.envelope.open .seal{opacity:0;transition:opacity .3s ease}
+.tap-hint{font-size:13px;color:var(--ink-soft);font-style:italic;font-family:"Cormorant Garamond",serif}
+
+/* ---------- ACT 2 : letter ---------- */
+.letter-card{background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:46px 40px;box-shadow:0 24px 60px rgba(60,35,20,.1);text-align:left}
+.salutation{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:24px;margin-bottom:18px}
+.reasons{list-style:none;margin:26px 0 30px;padding:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.reasons li{padding:14px 0;color:var(--ink-soft);font-size:15.5px;line-height:1.6;display:flex;gap:12px}
+.reasons li:not(:last-child){border-bottom:1px dashed var(--line)}
+.reasons li span{color:var(--gold);font-family:"Cormorant Garamond",serif;font-style:italic;flex-shrink:0}
+.signature{font-family:"Caveat",cursive;font-size:34px;color:var(--wine);margin:8px 0 0}
+.ask{margin-top:38px;padding-top:30px;border-top:1px solid var(--line);text-align:center}
+.ask h2{font-style:italic}
+.buttons{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:22px}
+button{border:0;border-radius:3px;padding:14px 26px;font:600 14.5px "Work Sans",sans-serif;cursor:pointer;transition:.2s ease;letter-spacing:.2px}
+.yes{color:#f7eedb;background:var(--wine)}
+.yes:hover{background:var(--wine-deep);transform:translateY(-2px)}
+.no{background:transparent;border:1px solid var(--line);color:var(--ink-soft)}
+.no.locked{cursor:not-allowed;opacity:.75}
+.error{min-height:22px;margin-top:14px;color:var(--wine);font-size:13px;font-style:italic;font-family:"Cormorant Garamond",serif}
+
+/* ---------- ACT 3 : forever message ---------- */
+#act3 .sheet{text-align:center}
+.forever-card{background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:54px 44px;box-shadow:0 24px 60px rgba(60,35,20,.1)}
+.forever-mark{width:44px;height:44px;margin:0 auto 22px;position:relative}
+.forever-mark:before,.forever-mark:after{content:"♥";position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:var(--wine)}
+.forever-mark:before{animation:pulseHeart 1.8s ease-in-out infinite}
+@keyframes pulseHeart{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.22);opacity:.5}}
+.forever-line{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:clamp(21px,4vw,27px);line-height:1.6;color:var(--ink);margin:0 0 16px}
+.forever-line.strong{color:var(--wine);font-weight:600;font-size:clamp(24px,4.6vw,31px)}
+.forever-card .yes{margin-top:26px}
+
+/* ---------- ACT 4 : plan ---------- */
+.vibe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0 30px}
+.vibe{background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:20px 10px;text-align:center;cursor:pointer;transition:.2s ease}
+.vibe span{display:block;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:22px;margin-bottom:6px;color:var(--wine)}
+.vibe small{font-size:12.5px;color:var(--ink-soft)}
+.vibe.active{border-color:var(--gold);background:#fbf4e3;box-shadow:0 10px 24px rgba(60,35,20,.1)}
+#act4 .letter-card{text-align:center}
+#act4 .letter-card p{margin-left:auto;margin-right:auto}
+
+/* modal */
+.modal-wrap{position:fixed;inset:0;background:rgba(30,18,12,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:200}
+.modal-wrap.show{display:flex;animation:fadein .25s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.modal{width:min(500px,100%);background:var(--paper);border-radius:2px;padding:34px;box-shadow:0 30px 70px rgba(30,15,10,.35);position:relative;border:1px solid var(--line)}
+.close{position:absolute;right:14px;top:12px;background:transparent;color:var(--ink-soft);padding:6px 10px;font-size:18px;border:0}
+.modal h3{font-size:26px;font-style:italic;margin:0 30px 6px 0}
+.modal .hint{font-size:13px;color:var(--ink-soft);margin-bottom:18px}
+label{display:block;text-align:left;font-size:12.5px;font-weight:600;margin:14px 0 6px;color:var(--ink-soft)}
+input{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:2px;font:inherit;font-size:15px;outline:none;background:#fffdf6;color-scheme:light;cursor:pointer}
+input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(179,134,63,.18)}
+input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webkit-calendar-picker-indicator{opacity:1;cursor:pointer;padding:4px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}
+.secondary{background:transparent;border:1px solid var(--line);color:var(--ink-soft)}
+
+/* ---------- ACT 5 : ticket ---------- */
+.ticket{background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:0;text-align:center;box-shadow:0 24px 60px rgba(60,35,20,.14);position:relative}
+.ticket-top{padding:40px 36px 26px}
+.stamp{width:88px;height:88px;border-radius:50%;border:3px double var(--wine);display:grid;place-items:center;margin:0 auto 20px;transform:rotate(-8deg);color:var(--wine);animation:stampIn .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes stampIn{from{opacity:0;transform:rotate(-8deg) scale(1.8)}to{opacity:1;transform:rotate(-8deg) scale(1)}}
+.stamp span{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:13px;letter-spacing:1px}
+.stub-divider{position:relative;height:0;border-top:2px dashed var(--line);margin:0 24px}
+.stub-divider:before,.stub-divider:after{content:"";position:absolute;top:-11px;width:22px;height:22px;border-radius:50%;background:var(--paper-deep)}
+.stub-divider:before{left:-11px}
+.stub-divider:after{right:-11px}
+.ticket-bottom{padding:26px 36px 34px}
+.detail-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;font-size:14.5px;text-align:left;border-bottom:1px dashed var(--line)}
+.detail-row:last-of-type{border-bottom:0}
+.detail-row b{color:var(--ink-soft);font-weight:600;font-size:12.5px;text-transform:none}
+.detail-row span{color:var(--ink);font-family:"Cormorant Garamond",serif;font-style:italic;font-size:17px}
+.closing-line{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:19px;color:var(--ink-soft);margin:22px 0 6px;line-height:1.6}
+.closing-line.small{font-size:15px;margin-top:4px}
+.ticket-actions{display:flex;gap:10px;justify-content:center;margin-top:26px;flex-wrap:wrap}
+.restart{background:transparent;color:var(--ink-soft);text-decoration:underline;padding:14px 6px}
+
+/* kiss burst */
+.kiss{position:fixed;bottom:32%;font-size:24px;pointer-events:none;z-index:500;opacity:0;animation:kissFloat 1.7s ease-out forwards}
+@keyframes kissFloat{
+  0%{opacity:0;transform:translate(0,0) scale(.4) rotate(0deg)}
+  14%{opacity:1;transform:translate(0,-10px) scale(1.15) rotate(-4deg)}
+  100%{opacity:0;transform:translate(var(--tx,0),-230px) scale(.85) rotate(18deg)}
+}
+
+@media(max-width:560px){
+  .letter-card,.modal,.forever-card{padding:30px 24px}
+  .row{grid-template-columns:1fr}
+  .vibe-grid{grid-template-columns:1fr}
+  .env-scene,.envelope,.flap{width:260px}
+  .flap{height:88px}
+  .dots{top:14px}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient" id="ambient"></div>
+
+<div class="dots" id="dots">
+  <div class="dot on" data-n="1"></div><div class="dot" data-n="2"></div><div class="dot" data-n="3"></div><div class="dot" data-n="4"></div><div class="dot" data-n="5"></div>
+</div>
+
+<!-- ACT 1 — the envelope -->
+<section class="act active" id="act1">
+  <div class="sheet">
+    <p class="subtitle">something arrived for you</p>
+    <div class="env-scene">
+      <div class="envelope" id="envelope">
+        <div class="letter-peek"></div>
+        <div class="env-body"></div>
+        <div class="flap"></div>
+        <div class="seal" id="sealBtn">✦</div>
+      </div>
+    </div>
+    <p class="tap-hint">tap the seal to open it</p>
+  </div>
+</section>
+
+<!-- ACT 2 — the letter -->
+<section class="act" id="act2">
+  <div class="sheet">
+    <div class="letter-card">
+      <p class="salutation reveal" style="--i:1">Dear you,</p>
+      <!-- ✏️ personalize this paragraph with something only the two of you would know -->
+      <p class="reveal" style="--i:2">I've been meaning to say this properly for a while, and a text message didn't feel like enough. So I made you a small website instead — a little much, maybe, but you're worth the effort.</p>
+      <p class="reveal" style="--i:3">There's no big occasion behind this. I just like being around you, and I'd like an excuse to do it more often. So consider this a formal, slightly nervous, entirely sincere request.</p>
+      <div class="rule reveal" style="--i:4"></div>
+      <p class="reveal" style="--i:4;margin-bottom:8px;color:var(--ink)"><em>A few reasons, in no particular order —</em></p>
+      <ul class="reasons reveal" style="--i:5">
+        <!-- ✏️ swap these lines for things that are actually true about the two of you -->
+        <li><span>✦</span>The way you talk about the things you love — I could listen for a long time.</li>
+        <li><span>✦</span>You make ordinary days feel a little more interesting than they should.</li>
+        <li><span>✦</span>You're funny in the specific way I like, which is to say: funny to me.</li>
+        <li><span>✦</span>I keep noticing things I want to tell you first.</li>
+        <li><span>✦</span>You feel less like someone I'm dating and more like someone I'm choosing, again, on purpose.</li>
+      </ul>
+      <p class="signature reveal" style="--i:6">— yours, hopefully</p>
+
+      <div class="ask reveal" style="--i:7">
+        <h2>So — will you go on a date with me?</h2>
+        <div class="buttons">
+          <button class="yes" id="yesBtn">Yes, I'd love to</button>
+          <button class="no locked" id="noBtn">No</button>
+        </div>
+        <div class="error" id="error"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACT 3 — forever message -->
+<section class="act" id="act3">
+  <div class="sheet">
+    <div class="forever-card">
+      <div class="forever-mark reveal" style="--i:1">♥</div>
+      <p class="forever-line reveal" style="--i:2">This isn't only about one date.</p>
+      <p class="forever-line reveal" style="--i:3">It's about all the ordinary days I'd like to spend with you after it —</p>
+      <p class="forever-line reveal" style="--i:4">the boring errands, the bad-day phone calls, the everything in between.</p>
+      <p class="forever-line strong reveal" style="--i:5">With you, forever sounds like an easy thing to promise.</p>
+      <p class="forever-line reveal" style="--i:6" style="font-size:16px">So before we plan the details — I just wanted you to know that.</p>
+      <button class="yes reveal" style="--i:7" id="continueBtn">Now, let's plan the day itself</button>
+    </div>
+  </div>
+</section>
+
+<!-- ACT 4 — plan it -->
+<section class="act" id="act4">
+  <div class="sheet">
+    <div class="letter-card">
+      <p class="subtitle" style="margin-bottom:6px">she said yes</p>
+      <h2>Let's plan it properly.</h2>
+      <div class="rule center"></div>
+      <p>Pick the mood, then we'll fill in the rest together.</p>
+      <div class="vibe-grid">
+        <div class="vibe active" data-vibe="Quiet & cozy"><span>quiet</span><small>coffee, low light, slow conversation</small></div>
+        <div class="vibe" data-vibe="Dressed up & delicious"><span>dinner</span><small>a proper table, a little effort</small></div>
+        <div class="vibe" data-vibe="Out and about"><span>adventure</span><small>somewhere neither of us has been</small></div>
+      </div>
+      <button class="yes" id="scheduleBtn">Choose the date</button>
+    </div>
+  </div>
+</section>
+
+<!-- ACT 5 — confirmed -->
+<section class="act" id="act5">
+  <div class="sheet">
+    <div class="ticket">
+      <div class="ticket-top">
+        <div class="stamp"><span>confirmed</span></div>
+        <h2>It's a date.</h2>
+        <p>Sealed, signed, and in the calendar — the first of many, I hope.</p>
+      </div>
+      <div class="stub-divider"></div>
+      <div class="ticket-bottom">
+        <div id="detailRows"></div>
+        <p class="closing-line">Honestly, the location is just a detail — you're the part I'm looking forward to.</p>
+        <p class="closing-line small">And whatever this turns into, I'm glad it starts here, with you.</p>
+        <div class="ticket-actions">
+          <button class="yes" id="shareBtn">Share the plan</button>
+          <button class="restart" id="restartBtn">Start over</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- details modal -->
+<div class="modal-wrap" id="modalWrap">
+  <div class="modal">
+    <button class="close" id="closeBtn">×</button>
+    <h3>Fill in the ticket</h3>
+    <p class="hint" id="vibeText">Quiet &amp; cozy sounds right. Now the specifics.</p>
+    <div class="row">
+      <div><label for="date">Date</label><input id="date" type="date"></div>
+      <div><label for="time">Time</label><input id="time" type="time"></div>
+    </div>
+    <label for="location">Location</label>
+    <input id="location" type="text" placeholder="a cute café, Marine Drive…">
+    <label for="note">A little note (optional)</label>
+    <input id="note" type="text" placeholder="wear something you feel good in">
+    <div class="modal-actions">
+      <button class="secondary" id="cancelBtn">Not yet</button>
+      <button class="yes" id="confirmBtn">Seal it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const acts=[...document.querySelectorAll(".act")];
+const dots=[...document.querySelectorAll(".dot")];
+function goTo(n){
+  acts.forEach((a,i)=>a.classList.toggle("active",i===n-1));
+  dots.forEach((d,i)=>d.classList.toggle("on",i===n-1));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+// ambient drifting specks
+(function(){
+  const wrap=document.getElementById("ambient");
+  const glyphs=[["✦","gold"],["✦","gold"],["♥","wine"],["✦","gold"],["♥","wine"],["✦","gold"]];
+  const count=14;
+  for(let i=0;i<count;i++){
+    const g=glyphs[i%glyphs.length];
+    const el=document.createElement("span");
+    el.className="speck "+g[1];
+    el.textContent=g[0];
+    const size=10+Math.random()*14;
+    const left=Math.random()*100;
+    const duration=14+Math.random()*12;
+    const delay=-Math.random()*duration;
+    const dx=(Math.random()*80-40)+"px";
+    el.style.left=left+"vw";
+    el.style.fontSize=size+"px";
+    el.style.setProperty("--dx",dx);
+    el.style.animationDuration=duration+"s";
+    el.style.animationDelay=delay+"s";
+    wrap.appendChild(el);
+  }
+})();
+
+// Act 1: open envelope
+document.getElementById("sealBtn").onclick=()=>{
+  const env=document.getElementById("envelope");
+  if(env.classList.contains("open"))return;
+  env.classList.add("open");
+  setTimeout(()=>goTo(2),1150);
+};
+
+// Act 2: yes/no
+document.getElementById("noBtn").onclick=()=>{
+  document.getElementById("error").textContent="That button is purely decorative. The other one works, though.";
+};
+document.getElementById("yesBtn").onclick=()=>goTo(3);
+
+// Act 3: forever message -> continue
+document.getElementById("continueBtn").onclick=()=>goTo(4);
+
+// Act 4: vibe + open modal
+let vibe="Quiet & cozy";
+document.querySelectorAll(".vibe").forEach(el=>{
+  el.onclick=()=>{
+    document.querySelectorAll(".vibe").forEach(x=>x.classList.remove("active"));
+    el.classList.add("active");
+    vibe=el.dataset.vibe;
+    document.getElementById("vibeText").textContent=vibe+" sounds right. Now the specifics.";
+  };
+});
+const modal=document.getElementById("modalWrap");
+document.getElementById("scheduleBtn").onclick=()=>modal.classList.add("show");
+document.getElementById("closeBtn").onclick=()=>modal.classList.remove("show");
+document.getElementById("cancelBtn").onclick=()=>modal.classList.remove("show");
+modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("show")});
+
+["date","time"].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener("click",()=>{ if(el.showPicker){ try{ el.showPicker(); }catch(e){} } });
+});
+
+document.getElementById("confirmBtn").onclick=()=>{
+  const d=document.getElementById("date").value;
+  const t=document.getElementById("time").value;
+  const l=document.getElementById("location").value.trim();
+  const n=document.getElementById("note").value.trim();
+  if(!d||!t||!l){alert("The date, time and location make the ticket real — fill those in first.");return}
+  const pretty=new Date(d+"T00:00:00").toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  document.getElementById("detailRows").innerHTML=
+    `<div class="detail-row"><b>mood</b><span>${escapeHtml(vibe)}</span></div>
+     <div class="detail-row"><b>date</b><span>${escapeHtml(pretty)}</span></div>
+     <div class="detail-row"><b>time</b><span>${escapeHtml(t)}</span></div>
+     <div class="detail-row"><b>where</b><span>${escapeHtml(l)}</span></div>
+     ${n?`<div class="detail-row"><b>note</b><span>${escapeHtml(n)}</span></div>`:""}`;
+  modal.classList.remove("show");
+  goTo(5);
+};
+
+document.getElementById("restartBtn").onclick=()=>{
+  document.getElementById("date").value="";
+  document.getElementById("time").value="";
+  document.getElementById("location").value="";
+  document.getElementById("note").value="";
+  document.getElementById("error").textContent="";
+  document.getElementById("envelope").classList.remove("open");
+  goTo(1);
+};
+
+function spawnKisses(){
+  const glyphs=["💋","😘","💕"];
+  const count=12;
+  for(let i=0;i<count;i++){
+    const el=document.createElement("div");
+    el.className="kiss";
+    el.textContent=glyphs[i%glyphs.length];
+    el.style.left=(38+Math.random()*24)+"%";
+    el.style.animationDelay=(i*0.06)+"s";
+    el.style.setProperty("--tx",(Math.random()*180-90)+"px");
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1900);
+  }
+}
+
+document.getElementById("shareBtn").onclick=async()=>{
+  spawnKisses();
+  const text="It's a date. "+document.getElementById("detailRows").innerText.replace(/\n+/g," · ");
+  if(navigator.share){try{await navigator.share({title:"It's a date",text})}catch(e){}}
+  else if(navigator.clipboard){await navigator.clipboard.writeText(text);alert("Copied the details to your clipboard.")}
+};
+
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+</script>
+</body>
+</html>
